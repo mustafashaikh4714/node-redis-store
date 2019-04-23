@@ -5,7 +5,7 @@ module.exports = app => {
   client.on('connect', () => console.log('connected to redis'))
 
   app.get('/', (req, res) => {
-    res.send('Redis Demo.')
+    res.render('find_user')
   })
 
   app.get('/add/user', (req, res) => {
@@ -23,5 +23,20 @@ module.exports = app => {
         res.redirect('/')
       }
     )
+  })
+
+  app.post('/find/user', (req, res) => {
+    let username = req.body.username
+    client.hgetall(username, (err, obj) => {
+      if (!obj)
+        return res.render('find_user', {
+          error: 'User not found!'
+        })
+
+      obj.username = username
+      res.render('user_dashboard', {
+        user: obj
+      })
+    })
   })
 }
